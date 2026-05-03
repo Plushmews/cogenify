@@ -35,19 +35,17 @@ st.set_page_config(page_title="Auto Scanline Generator", page_icon="🖨️")
 st.title("Auto Scanline & Barcode Generator")
 st.write("Tap the button below to instantly generate 10 random scanlines.")
 
-# 1. Initialize Session State so the lines don't vanish when clicked
+# 1. Initialize Session State
 if 'saved_scanlines' not in st.session_state:
     st.session_state.saved_scanlines = []
 
 # 2. Generate the Scanlines
 if st.button("Generate 10 Scanlines", type="primary"):
-    # Clear old results
     st.session_state.saved_scanlines = [] 
     
     for _ in range(10):
         random_amount = random.uniform(500.00, 1250.00)
         scanline = generate_payment_scanline(random_amount)
-        # Store both the formatted display text and the raw scanline number
         display_text = f"Amount: ${random_amount:7.2f}  |  Scanline: {scanline}"
         st.session_state.saved_scanlines.append((display_text, scanline))
 
@@ -56,26 +54,30 @@ if st.session_state.saved_scanlines:
     st.divider()
     st.subheader("Select a scanline to view its barcode:")
     
-    # Create a clean list of just the display text for the user to click
     options = [item[0] for item in st.session_state.saved_scanlines]
-    
-    # Use a radio button list for easy selection
     selected_option = st.radio("Generated Scanlines:", options, index=None, label_visibility="collapsed")
     
     if selected_option:
-        # Match the clicked text back to the raw 16-digit scanline number
         selected_scanline = next(item[1] for item in st.session_state.saved_scanlines if item[0] == selected_option)
         
         st.write("---")
         st.subheader(f"Barcode for: `{selected_scanline}`")
         
-        # Generate the Code 128 Barcode Image
+        # Setup barcode generator
         Code128 = barcode.get_barcode_class('code128')
         my_barcode = Code128(selected_scanline, writer=ImageWriter())
         
-        # Save it to a virtual buffer so Streamlit can render it instantly
-        buffer = BytesIO()
-        my_barcode.write(buffer)
+        # Custom display options to fix text clipping and proportions
+        barcode_options = {
+            'module_width': 0.2,   # Standard width for the bars
+            'module_height': 10.0, # Shorter bars (default is 15.0)
+            'font_size': 8,        # Slightly smaller text
+            'text_distance': 4.0,  # Pulls the text closer to the barcode
+            'dpi': 300             # Keeps it high resolution
+        }
         
-        # Display the image on the web page
-        st.image(buffer.getvalue(), width=400)
+        buffer = BytesIO()
+        my_barcode.write(buffer, options=barcode_options)
+        
+        # Display the image, downscaled slightly for a cleaner look
+        st.image(buffer.getvalue(), width=300)
