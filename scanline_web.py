@@ -30,6 +30,16 @@ def generate_payment_scanline(amount):
 # --- Web Interface ---
 st.set_page_config(page_title="Auto Scanline Generator", page_icon="🖨️")
 
+# INJECT CUSTOM CSS TO REMOVE STREAMLIT'S ROUNDED EDGES
+st.markdown("""
+    <style>
+        /* Forces all images to have sharp, 90-degree square corners */
+        img {
+            border-radius: 0px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("Auto Scanline & Barcode Generator")
 st.write("Tap the button below to instantly generate 10 random scanlines.")
 
@@ -61,21 +71,18 @@ if st.session_state.saved_scanlines:
         st.write("---")
         st.subheader(f"GS1 DataBar Expanded: `{selected_scanline}`")
         
-        # Call the BWIP-JS API safely using an encrypted HTTPS connection
         api_url = "https://bwipjs-api.metafloor.com/"
         
-     # Swapped back to GS1 DataBar Expanded (a 1D rectangular barcode)
         payload = {
             'bcid': 'databarexpanded',
             'text': f'(415)1234567890128(8020){selected_scanline}', 
-            'scale': 3,          # Keeps the lines high-resolution and sharp
-            'height': 15,        # Stretches the bars vertically to form a clear rectangle
-            'includetext': ''    # Places the formatted numbers back underneath the bars
+            'scale': 5,          # Increased to 5 for HD, pixel-perfect 90-degree lines
+            'height': 15,        
+            'includetext': ''    
         }
         
         try:
             with st.spinner("Generating barcode..."):
-                # Using 'params' safely handles all the weird URL encoding for the parentheses
                 response = requests.get(api_url, params=payload)
                 
             if response.status_code == 200:
