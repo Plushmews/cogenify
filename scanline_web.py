@@ -97,7 +97,7 @@ if st.session_state.saved_scanlines:
             'textfont': 'Helvetica',  
             'textsize': 18,           
             'includetext': '',
-            'textyoffset': 2          # <--- NEW: Pushes the text 8 points downward to create a gap!
+            'textyoffset': -8          # <--- NEW: Pushes the text 8 points downward to create a gap!
         }
         
         try:
