@@ -92,11 +92,12 @@ if st.session_state.saved_scanlines:
             'bcid': 'databarexpanded',
             'text': f'(99){internal_data}', 
             'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
-            'scale': 5,               # High-res so it stays sharp when you shrink it in print software
-            'height': 20,              # Sets the barcode lines to exactly 7mm tall
-            'textfont': 'Helvetica',  # Forces Helvetica font
-            'textsize': 18,           # 30pt 
-            'includetext': ''    
+            'scale': 5,               
+            'height': 20,             
+            'textfont': 'Helvetica',  
+            'textsize': 18,           
+            'includetext': '',
+            'textyoffset': 8          # <--- NEW: Pushes the text 8 points downward to create a gap!
         }
         
         try:
