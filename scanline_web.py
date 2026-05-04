@@ -53,4 +53,4 @@ if st.button("Generate 10 Scanlines", type="primary"):
     
     for _ in range(10):
         random_amount = random.uniform(500.00, 1250.00)
-        scanline = generate_payment_scanline(
+        scanline = generate_payment_scanline(random_amount)
