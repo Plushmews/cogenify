@@ -1,9 +1,7 @@
 import random
 from datetime import datetime
 import streamlit as st
-import barcode
-from barcode.writer import ImageWriter
-from io import BytesIO
+import requests
 
 # --- Core Algorithm ---
 def calculate_check_digit(base_string):
@@ -61,23 +59,20 @@ if st.session_state.saved_scanlines:
         selected_scanline = next(item[1] for item in st.session_state.saved_scanlines if item[0] == selected_option)
         
         st.write("---")
-        st.subheader(f"Barcode for: `{selected_scanline}`")
+        st.subheader(f"GS1 DataBar Expanded: `{selected_scanline}`")
         
-        # Setup barcode generator
-        Code128 = barcode.get_barcode_class('code128')
-        my_barcode = Code128(selected_scanline, writer=ImageWriter())
+        # Call the BWIP-JS API to generate the GS1 DataBar Expanded image
+        # scale=3 keeps it sharp, includetext puts the numbers under the bars
+        api_url = f"http://bwipjs-api.metafloor.com/?bcid=databarexpanded&text={selected_scanline}&scale=3&includetext"
         
-        # Custom display options to fix text clipping and proportions
-        barcode_options = {
-            'module_width': 0.2,   # Standard width for the bars
-            'module_height': 10.0, # Shorter bars (default is 15.0)
-            'font_size': 8,        # Slightly smaller text
-            'text_distance': 4.0,  # Pulls the text closer to the barcode
-            'dpi': 300             # Keeps it high resolution
-        }
-        
-        buffer = BytesIO()
-        my_barcode.write(buffer, options=barcode_options)
-        
-        # Display the image, downscaled slightly for a cleaner look
-        st.image(buffer.getvalue(), width=300)
+        try:
+            with st.spinner("Generating barcode..."):
+                response = requests.get(api_url)
+                
+            if response.status_code == 200:
+                # Display the fetched image
+                st.image(response.content, width=350)
+            else:
+                st.error("Error generating barcode format.")
+        except Exception as e:
+            st.error("Could not connect to the barcode service.")
