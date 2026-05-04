@@ -73,10 +73,11 @@ if st.session_state.saved_scanlines:
         
         api_url = "https://bwipjs-api.metafloor.com/"
         
-        payload = {
+       payload = {
             'bcid': 'databarexpanded',
             'text': f'(415)1234567890128(8020){selected_scanline}', 
-            'scale': 5,          # Increased to 5 for HD, pixel-perfect 90-degree lines
+            'alttext': f'(8020){selected_scanline}', # <--- THE FIX: Hides the dummy 415 text
+            'scale': 5,          
             'height': 15,        
             'includetext': ''    
         }
