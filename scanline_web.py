@@ -54,3 +54,42 @@ if st.button("Generate 10 Scanlines", type="primary"):
     for _ in range(10):
         random_amount = random.uniform(500.00, 1250.00)
         scanline = generate_payment_scanline(random_amount)
+        display_text = f"Amount: ${random_amount:7.2f}  |  Scanline: {scanline}"
+        st.session_state.saved_scanlines.append((display_text, scanline))
+
+# 3. Display the Clickable List & Barcode
+if st.session_state.saved_scanlines:
+    st.divider()
+    st.subheader("Select a scanline to view its barcode:")
+    
+    options = [item[0] for item in st.session_state.saved_scanlines]
+    selected_option = st.radio("Generated Scanlines:", options, index=None, label_visibility="collapsed")
+    
+    if selected_option:
+        selected_scanline = next(item[1] for item in st.session_state.saved_scanlines if item[0] == selected_option)
+        
+        st.write("---")
+        st.subheader(f"GS1 DataBar Expanded: `{selected_scanline}`")
+        
+        api_url = "https://bwipjs-api.metafloor.com/"
+        
+        # The finalized payload for a strict GS1, rectangular, sharp-edged barcode
+        payload = {
+            'bcid': 'databarexpanded',
+            'text': f'(415)1234567890128(8020){selected_scanline}', 
+            'alttext': f'(8020){selected_scanline}', # Hides the dummy 415 text
+            'scale': 5,          
+            'height': 15,        
+            'includetext': ''    
+        }
+        
+        try:
+            with st.spinner("Generating barcode..."):
+                response = requests.get(api_url, params=payload)
+                
+            if response.status_code == 200:
+                st.image(response.content, width=350)
+            else:
+                st.error(f"Error generating barcode. The API rejected the GS1 formatting.")
+        except Exception as e:
+            st.error("Could not connect to the barcode service.")
