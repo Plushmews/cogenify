@@ -64,10 +64,10 @@ if st.session_state.saved_scanlines:
         # Call the BWIP-JS API safely using an encrypted HTTPS connection
         api_url = "https://bwipjs-api.metafloor.com/"
         
-        # We format the text with (8020), the standard GS1 AI for Payment References
+      # Adding AI (415) with a 13-digit GLN before the (8020) scanline
         payload = {
             'bcid': 'databarexpanded',
-            'text': f'(8020){selected_scanline}', 
+            'text': f'(415)1234567890128(8020){selected_scanline}', 
             'scale': 3,
             'includetext': ''
         }
