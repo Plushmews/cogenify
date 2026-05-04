@@ -87,13 +87,15 @@ if st.session_state.saved_scanlines:
         # 1. Separate the "99" from the rest of the generated string
         internal_data = selected_scanline[2:]
         
-        # 2. Use (99) as the official GS1 Internal AI, but use alttext to print the clean string
+        # 2. Configured for a 35x25mm bounding box print
         payload = {
             'bcid': 'databarexpanded',
             'text': f'(99){internal_data}', 
             'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
-            'scale': 5,          
-            'height': 15,        
+            'scale': 5,               # High-res so it stays sharp when you shrink it in print software
+            'height': 7,              # Sets the barcode lines to exactly 7mm tall
+            'textfont': 'Helvetica',  # Forces Helvetica font
+            'textsize': 10,           # 10pt font is exactly ~3.5mm tall
             'includetext': ''    
         }
         
