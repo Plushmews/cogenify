@@ -95,7 +95,7 @@ if st.session_state.saved_scanlines:
             'scale': 5,               # High-res so it stays sharp when you shrink it in print software
             'height': 20,              # Sets the barcode lines to exactly 7mm tall
             'textfont': 'Helvetica',  # Forces Helvetica font
-            'textsize': 10,           # 30pt 
+            'textsize': 16,           # 30pt 
             'includetext': ''    
         }
         
