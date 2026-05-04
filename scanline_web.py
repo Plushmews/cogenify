@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 import streamlit as st
 import requests
 
@@ -13,25 +12,28 @@ def calculate_check_digit(base_string):
     return str(check_digit)
 
 def generate_payment_scanline(amount):
-    # 1. Fixed Prefix (Internal Company Info)
+    # 1. Identifier Prefix
     prefix = "99"
     
-    # 2. Current Month and Year
-    current_date = datetime.now()
-    month = current_date.strftime("%m") # e.g., "12" for December
-    year = current_date.strftime("%y")  # e.g., "24" for 2024
+    # 2. Static '1' and Year '25'
+    static_one = "1"
+    year = "25"
     
-    # 3. Two Zeros
+    # 3. Randomized Month (01-12)
+    # random.randint(1, 12) picks the month, :02d ensures it is always 2 digits (e.g., "04")
+    month = f"{random.randint(1, 12):02d}"
+    
+    # 4. Two Zeros
     zeros = "00"
     
-    # 4. Amount zero-padded to 6 digits
+    # 5. Amount zero-padded to 6 digits
     amount_cents = int(round(amount * 100))
     amount_str = f"{amount_cents:06d}"
     
-    # Assemble the 14-digit base string
-    base_string = f"{prefix}{month}{year}{zeros}{amount_str}"
+    # Assemble the base string
+    base_string = f"{prefix}{static_one}{year}{month}{zeros}{amount_str}"
     
-    # 5. Calculate and append Check Digit
+    # 6. Calculate and append Check Digit
     check_digit = calculate_check_digit(base_string)
     
     return f"{base_string}{check_digit}"
@@ -89,7 +91,7 @@ if st.session_state.saved_scanlines:
         payload = {
             'bcid': 'databarexpanded',
             'text': f'(99){internal_data}', 
-            'alttext': selected_scanline, # Hides the parentheses and just prints the 15 digits
+            'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
             'scale': 5,          
             'height': 15,        
             'includetext': ''    
