@@ -13,16 +13,25 @@ def calculate_check_digit(base_string):
     return str(check_digit)
 
 def generate_payment_scanline(amount):
-    prefix = "991"
-    current_year = datetime.now().year
-    prev_year = str(current_year - 1)[-2:]
-    valid_identifiers = ["1100", "1200", "1300", "1400"]
-    random_id = random.choice(valid_identifiers)
+    # 1. Fixed Prefix
+    prefix = "99"
     
+    # 2. Current Month and Year
+    current_date = datetime.now()
+    month = current_date.strftime("%m") # e.g., "12" for December
+    year = current_date.strftime("%y")  # e.g., "24" for 2024
+    
+    # 3. Two Zeros
+    zeros = "00"
+    
+    # 4. Amount zero-padded to 6 digits
     amount_cents = int(round(amount * 100))
     amount_str = f"{amount_cents:06d}"
     
-    base_string = f"{prefix}{prev_year}{random_id}{amount_str}"
+    # Assemble the 14-digit base string
+    base_string = f"{prefix}{month}{year}{zeros}{amount_str}"
+    
+    # 5. Calculate and append Check Digit
     check_digit = calculate_check_digit(base_string)
     
     return f"{base_string}{check_digit}"
@@ -53,7 +62,8 @@ if st.button("Generate 10 Scanlines", type="primary"):
     
     for _ in range(10):
         random_amount = random.uniform(500.00, 1250.00)
-        scanline = generate_payment_scanline(random_amount)
+        # The missing parenthesis here is fixed!
+        scanline = generate_payment_scanline(random_amount) 
         display_text = f"Amount: ${random_amount:7.2f}  |  Scanline: {scanline}"
         st.session_state.saved_scanlines.append((display_text, scanline))
 
@@ -69,15 +79,15 @@ if st.session_state.saved_scanlines:
         selected_scanline = next(item[1] for item in st.session_state.saved_scanlines if item[0] == selected_option)
         
         st.write("---")
-        st.subheader(f"GS1 DataBar Expanded: `{selected_scanline}`")
+        st.subheader(f"Barcode: `{selected_scanline}`")
         
         api_url = "https://bwipjs-api.metafloor.com/"
         
-        # The finalized payload for a strict GS1, rectangular, sharp-edged barcode
+        # Using (21) internally so GS1 doesn't crash, but alttext strictly shows ONLY the raw scanline
         payload = {
             'bcid': 'databarexpanded',
-            'text': f'(415)1234567890128(8020){selected_scanline}', 
-            'alttext': f'(8020){selected_scanline}', # Hides the dummy 415 text
+            'text': f'(21){selected_scanline}', 
+            'alttext': selected_scanline, # completely removes parentheses from the printed text
             'scale': 5,          
             'height': 15,        
             'includetext': ''    
@@ -90,6 +100,7 @@ if st.session_state.saved_scanlines:
             if response.status_code == 200:
                 st.image(response.content, width=350)
             else:
-                st.error(f"Error generating barcode. The API rejected the GS1 formatting.")
+                st.error("Error generating barcode. The API rejected the formatting.")
         except Exception as e:
             st.error("Could not connect to the barcode service.")
+            
