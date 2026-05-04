@@ -64,12 +64,11 @@ if st.session_state.saved_scanlines:
         # Call the BWIP-JS API safely using an encrypted HTTPS connection
         api_url = "https://bwipjs-api.metafloor.com/"
         
-      # Adding AI (415) with a 13-digit GLN before the (8020) scanline
+     # Swapped to GS1 DataMatrix to force a sharp, perfect square
         payload = {
-            'bcid': 'databarexpanded',
+            'bcid': 'gs1datamatrix',  # Changed from 'databarexpanded'
             'text': f'(415)1234567890128(8020){selected_scanline}', 
-            'scale': 3,
-            'includetext': ''
+            'scale': 5,               # Bumped up the scale so the edges stay razor-sharp
         }
         
         try:
