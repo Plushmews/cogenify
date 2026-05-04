@@ -94,7 +94,7 @@ if st.session_state.saved_scanlines:
             'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
             'scale': 5,               
             'height': 15,             
-            'textfont': 'Helvitica',  
+            'textfont': 'Helvetica',  
             'textsize': 18,           
             'includetext': '',
             'textyoffset': -8          # <--- NEW: Pushes the text 8 points downward to create a gap!
