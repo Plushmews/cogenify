@@ -61,18 +61,25 @@ if st.session_state.saved_scanlines:
         st.write("---")
         st.subheader(f"GS1 DataBar Expanded: `{selected_scanline}`")
         
-        # Call the BWIP-JS API to generate the GS1 DataBar Expanded image
-        # scale=3 keeps it sharp, includetext puts the numbers under the bars
-        api_url = f"http://bwipjs-api.metafloor.com/?bcid=databarexpanded&text={selected_scanline}&scale=3&includetext"
+        # Call the BWIP-JS API safely using an encrypted HTTPS connection
+        api_url = "https://bwipjs-api.metafloor.com/"
+        
+        # We format the text with (8020), the standard GS1 AI for Payment References
+        payload = {
+            'bcid': 'databarexpanded',
+            'text': f'(8020){selected_scanline}', 
+            'scale': 3,
+            'includetext': ''
+        }
         
         try:
             with st.spinner("Generating barcode..."):
-                response = requests.get(api_url)
+                # Using 'params' safely handles all the weird URL encoding for the parentheses
+                response = requests.get(api_url, params=payload)
                 
             if response.status_code == 200:
-                # Display the fetched image
                 st.image(response.content, width=350)
             else:
-                st.error("Error generating barcode format.")
+                st.error(f"Error generating barcode. The API rejected the GS1 formatting.")
         except Exception as e:
             st.error("Could not connect to the barcode service.")
