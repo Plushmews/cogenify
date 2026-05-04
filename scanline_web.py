@@ -93,7 +93,7 @@ if st.session_state.saved_scanlines:
             'text': f'(99){internal_data}', 
             'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
             'scale': 5,               # High-res so it stays sharp when you shrink it in print software
-            'height': 7,              # Sets the barcode lines to exactly 7mm tall
+            'height': 15,              # Sets the barcode lines to exactly 7mm tall
             'textfont': 'Helvetica',  # Forces Helvetica font
             'textsize': 10,           # 10pt font is exactly ~3.5mm tall
             'includetext': ''    
