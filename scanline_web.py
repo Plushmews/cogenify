@@ -93,7 +93,7 @@ if st.session_state.saved_scanlines:
             'text': f'(99){internal_data}', 
             'alttext': selected_scanline, # Hides the parentheses and prints your raw digits
             'scale': 5,               
-            'height': 20,             
+            'height': 16,             
             'textfont': 'Helvetica',  
             'textsize': 18,           
             'includetext': '',
