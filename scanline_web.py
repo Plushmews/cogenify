@@ -64,7 +64,7 @@ if st.session_state.saved_scanlines:
             'text': f'(99){internal_data}', 
             'scale': 5,               
             'height': 20,             
-            'includetext': False      # Tell the API NOT to draw the text
+        
         }
         
         try:
