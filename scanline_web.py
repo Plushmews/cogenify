@@ -58,13 +58,10 @@ if st.session_state.saved_scanlines:
         
         api_url = "https://bwipjs-api.metafloor.com/"
         
-        # 1. We request ONLY the barcode lines (includetext=False)
-        payload = {
-            'bcid': 'databarexpanded',
+        'bcid': 'databarexpanded',
             'text': f'(99){internal_data}', 
             'scale': 5,               
-            'height': 20,             
-            'includetext': False      # Tell the API NOT to draw the text
+            'height': 20
         }
         
         try:
@@ -73,38 +70,38 @@ if st.session_state.saved_scanlines:
                 
             if response.status_code == 200:
                 # --- PILLOW PROCESSING ---
-                # Open the barcode as a Python image
-                barcode_img = Image.open(io.BytesIO(response.content))
+                # Open the barcode and convert to RGB for drawing
+                barcode_img = Image.open(io.BytesIO(response.content)).convert("RGB")
                 bw, bh = barcode_img.size
                 
-                # Create a new white canvas with room for text at the bottom (add 120 pixels)
-                canvas = Image.new("RGB", (bw, bh + 120), "white")
+                # Create white canvas with extra height (140px) for the text at the bottom
+                canvas = Image.new("RGB", (bw, bh + 140), "white")
                 canvas.paste(barcode_img, (0, 0))
                 
                 draw = ImageDraw.Draw(canvas)
                 
-                # Load Arial (Standard Helvetica clone on Windows/Mac)
-                # If running on Linux/Cloud, you may need to point to a specific .ttf file
+                # Load Arial (standard Helvetica clone)
                 try:
+                    # Windows: "arial.ttf" | Mac/Linux: "Arial.ttf"
                     font = ImageFont.truetype("arial.ttf", 65) 
                 except:
                     font = ImageFont.load_default()
                 
-                # Calculate text position (Centered)
-                text_width = draw.textlength(selected_scanline, font=font)
+                # Calculate text centering
+                text_bbox = draw.textbbox((0, 0), selected_scanline, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
                 x_pos = (bw - text_width) // 2
-                y_pos = bh + 20  # This is your "space below" (20 pixels gap)
+                y_pos = bh + 30  # This sets a clean 30-pixel gap below the bars
                 
                 # Draw the clean Helvetica-style text
                 draw.text((x_pos, y_pos), selected_scanline, fill="black", font=font)
                 
-                # Convert back to bytes to show in Streamlit
+                # Save and display
                 img_byte_arr = io.BytesIO()
                 canvas.save(img_byte_arr, format='PNG')
                 st.image(img_byte_arr.getvalue(), width=350)
-                
-                st.caption(f"Scanline: {selected_scanline}")
             else:
-                st.error("API Error.")
+                # Display actual error message from the server for debugging
+                st.error(f"API Error: {response.text}")
         except Exception as e:
             st.error(f"Processing Error: {e}")
