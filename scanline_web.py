@@ -58,7 +58,7 @@ if st.session_state.saved_scanlines:
         
         api_url = "https://bwipjs-api.metafloor.com/"
         
-        # 1. We request ONLY the barcode lines (includetext=False)
+        # 1. We request ONLY the barcode lines
         payload = {
             'bcid': 'databarexpanded',
             'text': f'(99){internal_data}', 
